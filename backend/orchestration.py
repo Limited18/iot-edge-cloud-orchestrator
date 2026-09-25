@@ -3,6 +3,7 @@ import os
 import random
 import time
 import joblib
+import pandas as pd
 from .config import settings
 from .priority_engine import evaluate_priority
 from .resource_monitor import snapshot
@@ -61,7 +62,13 @@ def decide(data, network_latency_ms=None):
         source = "priority_engine"
     elif model is not None:
         try:
-            decision = str(model.predict([build_features(data, resources, net)])[0]).upper()
+            features = build_features(data, resources, net)
+            feature_names = getattr(model, "feature_names_in_", None)
+            if feature_names is not None:
+                X = pd.DataFrame([features], columns=list(feature_names))
+            else:
+                X = [features]
+            decision = str(model.predict(X)[0]).upper()
             reason = f"ML prediction; priority={priority}; {priority_reason}"
             source = "random_forest"
         except Exception:
