@@ -6,8 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from .resource_monitor import snapshot
 from .orchestration import process_task
 from .mqtt_client import start as start_mqtt
+from .state import LATEST, record
 
-LATEST = {"sensor": None, "decision": None, "resources": snapshot(), "history": []}
 mqtt_started = False
 
 @asynccontextmanager
@@ -35,9 +35,7 @@ def status():
 @app.post("/api/process")
 def process(payload: dict):
     result = process_task(payload, payload.get("simulated_network_latency_ms"))
-    LATEST["sensor"] = payload
-    LATEST["decision"] = result
-    LATEST["history"] = [result] + LATEST["history"][:49]
+    record(payload, result)
     return result
 
 @app.get("/api/history")
