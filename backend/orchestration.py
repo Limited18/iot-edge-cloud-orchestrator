@@ -52,7 +52,14 @@ def decide(data, network_latency_ms=None):
     priority, priority_reason = evaluate_priority(data)
     model = _load_model()
     source = "fallback"
-    if model is not None:
+    # Safety/priority override: urgent events must stay on the Edge
+    # regardless of the ML prediction, because the orchestration policy
+    # gives latency-sensitive critical/high events precedence.
+    if priority in {"CRITICAL", "HIGH"}:
+        decision = "EDGE"
+        reason = f"Priority override; {priority_reason}"
+        source = "priority_engine"
+    elif model is not None:
         try:
             decision = str(model.predict([build_features(data, resources, net)])[0]).upper()
             reason = f"ML prediction; priority={priority}; {priority_reason}"
