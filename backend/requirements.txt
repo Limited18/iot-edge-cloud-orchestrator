@@ -1,0 +1,11 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+paho-mqtt==2.1.0
+firebase-admin==6.6.0
+python-dotenv==1.0.1
+psutil==6.1.1
+numpy==2.2.1
+pandas==2.2.3
+scikit-learn==1.6.1
+joblib==1.4.2
+matplotlib==3.10.0
