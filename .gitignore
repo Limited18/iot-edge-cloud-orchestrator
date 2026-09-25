@@ -1,0 +1,12 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.env
+firebase/*.json
+ml/artifacts/
+analytics/results/*.csv
+analytics/results/*.json
+analytics/results/*.png
+frontend/node_modules/
+frontend/dist/
