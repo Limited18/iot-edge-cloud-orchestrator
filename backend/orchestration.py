@@ -8,6 +8,8 @@ from .config import settings
 from .priority_engine import evaluate_priority
 from .resource_monitor import snapshot
 from .firebase_service import write
+from .edge_processor import process_on_edge
+from .cloud_processor import process_in_cloud
 
 _model = None
 
@@ -87,7 +89,11 @@ def decide(data, network_latency_ms=None):
 def process_task(data, network_latency_ms=None):
     started = time.perf_counter()
     result = decide(data, network_latency_ms)
-    time.sleep(settings.cloud_processing_delay_ms / 1000 if result["decision"] == "CLOUD" else 0.005)
+    if result["decision"] == "CLOUD":
+        execution = process_in_cloud(data, result["network_latency_ms"])
+    else:
+        execution = process_on_edge(data)
+    result.update(execution)
     result["processing_latency_ms"] = round((time.perf_counter() - started) * 1000, 3)
     result["task_id"] = data.get("task_id")
     result["task_type"] = data.get("task_type", "monitoring")
